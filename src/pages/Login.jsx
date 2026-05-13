@@ -1,12 +1,38 @@
-import { auth, googleProvider } from "../firebase";
-import { signInWithPopup } from "firebase/auth";
+import { useState } from "react";
+import { auth } from "../firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
 function Login({ onInvite }) {
-  const handleGoogle = async () => {
+  const [mode, setMode] = useState("connexion");
+  const [prenom, setPrenom] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [erreur, setErreur] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErreur("");
+
+    if (password.length < 8) {
+      setErreur("Le mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
+
     try {
-      await signInWithPopup(auth, googleProvider);
+      if (mode === "inscription") {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
     } catch (err) {
-      console.log(err.code);
+      if (err.code === "auth/email-already-in-use") setErreur("Email déjà utilisé.");
+      else if (err.code === "auth/wrong-password") setErreur("Mot de passe incorrect.");
+      else if (err.code === "auth/user-not-found") setErreur("Aucun compte avec cet email.");
+      else if (err.code === "auth/invalid-credential") setErreur("Email ou mot de passe incorrect.");
+      else setErreur(err.code);
     }
   };
 
@@ -16,14 +42,50 @@ function Login({ onInvite }) {
         <h1>🎬 CinéTracker</h1>
         <p className="login-subtitle">Ta plateforme de films personnalisée</p>
 
-        <button className="btn-google" onClick={handleGoogle}>
-          <img
-            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-            alt="Google"
-            width="20"
+        <div className="login-tabs">
+          <button
+            className={mode === "connexion" ? "active" : ""}
+            onClick={() => setMode("connexion")}
+          >
+            Connexion
+          </button>
+          <button
+            className={mode === "inscription" ? "active" : ""}
+            onClick={() => setMode("inscription")}
+          >
+            Inscription
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          {mode === "inscription" && (
+            <input
+              type="text"
+              placeholder="Prénom..."
+              value={prenom}
+              onChange={(e) => setPrenom(e.target.value)}
+              required
+            />
+          )}
+          <input
+            type="email"
+            placeholder="Email..."
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
           />
-          Se connecter avec Google
-        </button>
+          <input
+            type="password"
+            placeholder="Mot de passe (8 caractères min)..."
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {erreur && <p className="erreur">{erreur}</p>}
+          <button type="submit" className="btn-login">
+            {mode === "connexion" ? "Se connecter" : "Créer un compte"}
+          </button>
+        </form>
 
         <div className="login-separateur">ou</div>
 
