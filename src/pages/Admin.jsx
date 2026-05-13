@@ -38,18 +38,23 @@ function Admin({ films, onAjouter, onSupprimer }) {
           value={image}
           onChange={(e) => setImage(e.target.value)}
         />
-        <input
-          type="text"
-          placeholder="Nom du réalisateur..."
-          value={realisateur}
-          onChange={(e) => setRealisateur(e.target.value)}
-        />
-        <textarea
-          placeholder="Synopsis..."
-          value={synopsis}
-          onChange={(e) => setSynopsis(e.target.value)}
-          rows={3}
-        />
+       <label className="input-file-label">
+  📁 Choisir une affiche
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = () => setImage(reader.result);
+      reader.readAsDataURL(file);
+    }}
+  />
+</label>
+{image && (
+  <img src={image} alt="Aperçu" className="apercu-image" />
+)}
         <select value={genre} onChange={(e) => setGenre(e.target.value)}>
           <option value="action">💥 Action</option>
           <option value="comédie">😂 Comédie</option>
