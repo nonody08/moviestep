@@ -17,15 +17,14 @@ function FilmList({ films, onToggle, onDelete, onEdit }) {
         value={recherche}
         onChange={(e) => setRecherche(e.target.value)}
       />
-
       {filmsFiltres.length === 0 ? (
         <p className="empty">
           {films.length === 0
-            ? "Aucun film ajouté pour le moment 🎬"
+            ? "Aucun film dans le catalogue 🎬"
             : "Aucun film ne correspond à ta recherche 🔍"}
         </p>
       ) : (
-        <ul className="task-list">
+        <div className="film-grid">
           {filmsFiltres.map((film) => (
             <TaskItem
               key={film.id}
@@ -35,7 +34,7 @@ function FilmList({ films, onToggle, onDelete, onEdit }) {
               onEdit={onEdit}
             />
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

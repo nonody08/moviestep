@@ -5,30 +5,43 @@ function TaskItem({ film, onToggle, onDelete, onEdit }) {
   const [titre, setTitre] = useState(film.titre);
   const [genre, setGenre] = useState(film.genre);
   const [note, setNote] = useState(film.note);
-
-  const genreEmojis = {
-    action: "💥",
-    comédie: "😂",
-    thriller: "🧠",
-    horreur: "👻",
-    romance: "❤️",
-    "sci-fi": "🚀",
-    documentaire: "🎥",
-  };
+  const [image, setImage] = useState(film.image);
+  const [synopsis, setSynopsis] = useState(film.synopsis);
+  const [realisateur, setRealisateur] = useState(film.realisateur);
 
   const handleSave = () => {
     if (!titre.trim()) return;
-    onEdit(film.id, { titre, genre, note });
+    onEdit(film.id, { titre, genre, note, image, synopsis, realisateur });
     setEnEdition(false);
   };
 
   if (enEdition) {
     return (
-      <li className="task-item edit-mode">
+      <div className="card-edit">
         <input
           className="edit-input"
           value={titre}
+          placeholder="Titre"
           onChange={(e) => setTitre(e.target.value)}
+        />
+        <input
+          className="edit-input"
+          value={image}
+          placeholder="URL image"
+          onChange={(e) => setImage(e.target.value)}
+        />
+        <input
+          className="edit-input"
+          value={realisateur}
+          placeholder="Réalisateur"
+          onChange={(e) => setRealisateur(e.target.value)}
+        />
+        <textarea
+          className="edit-input"
+          value={synopsis}
+          placeholder="Synopsis"
+          rows={3}
+          onChange={(e) => setSynopsis(e.target.value)}
         />
         <select
           className="edit-select"
@@ -41,6 +54,7 @@ function TaskItem({ film, onToggle, onDelete, onEdit }) {
           <option value="romance">❤️ Romance</option>
           <option value="sci-fi">🚀 Sci-Fi</option>
           <option value="documentaire">🎥 Documentaire</option>
+          <option value="thriller">🔪 Thriller</option>
         </select>
         <select
           className="edit-select"
@@ -53,25 +67,42 @@ function TaskItem({ film, onToggle, onDelete, onEdit }) {
           <option value="4">⭐ 4/5</option>
           <option value="5">⭐ 5/5</option>
         </select>
-        <button className="save-btn" onClick={handleSave}>💾</button>
-        <button className="cancel-btn" onClick={() => setEnEdition(false)}>✖️</button>
-      </li>
+        <div className="edit-actions">
+          <button className="save-btn" onClick={handleSave}>💾 Sauvegarder</button>
+          <button className="cancel-btn" onClick={() => setEnEdition(false)}>✖️ Annuler</button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <li className={`task-item ${film.statut === "vu" ? "done" : ""}`}>
-      <span className="genre-emoji">{genreEmojis[film.genre]}</span>
-      <span className="task-title" onClick={() => onToggle(film.id)}>
-        {film.titre}
-      </span>
-      <span className="etoiles">{"⭐".repeat(Number(film.note))}</span>
-      <span className={`statut ${film.statut === "vu" ? "vu" : "a-voir"}`}>
-        {film.statut === "vu" ? "✅ Vu" : "🕐 À voir"}
-      </span>
-      <button className="edit-btn" onClick={() => setEnEdition(true)}>✏️</button>
-      <button className="delete-btn" onClick={() => onDelete(film.id)}>🗑️</button>
-    </li>
+    <div className={`film-card ${film.statut === "vu" ? "card-vu" : ""}`}>
+      <div className="card-image-wrapper">
+        {film.image ? (
+          <img src={film.image} alt={film.titre} className="card-image" />
+        ) : (
+          <div className="card-no-image">🎬</div>
+        )}
+        <span className={`card-statut ${film.statut === "vu" ? "vu" : "a-voir"}`}>
+          {film.statut === "vu" ? "✅ Vu" : "🕐 À voir"}
+        </span>
+      </div>
+      <div className="card-body">
+        <h3 className="card-titre">{film.titre}</h3>
+        <p className="card-realisateur">🎥 {film.realisateur}</p>
+        <p className="card-synopsis">{film.synopsis}</p>
+        <div className="card-footer">
+          <span className="card-note">{"⭐".repeat(Number(film.note))}</span>
+          <div className="card-actions">
+            <button onClick={() => onToggle(film.id)}>
+              {film.statut === "vu" ? "↩️" : "✅"}
+            </button>
+            <button onClick={() => setEnEdition(true)}>✏️</button>
+            <button onClick={() => onDelete(film.id)}>🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
