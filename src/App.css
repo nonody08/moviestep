@@ -708,3 +708,8 @@ body {
 
 .login-separateur::before { left: 0; }
 .login-separateur::after { right: 0; }
+.succes {
+  color: #22c55e;
+  font-size: 0.85rem;
+  text-align: center;
+}

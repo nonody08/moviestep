@@ -1,13 +1,5 @@
 import { useState, useEffect } from "react";
-import { auth, db } from "./firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import {
-  collection,
-  onSnapshot,
-  addDoc,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
+import { supabase } from "./supabase";
 import Header from "./components/Header";
 import Catalogue from "./pages/Catalogue";
 import Panier from "./pages/Panier";
@@ -15,7 +7,7 @@ import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import "./App.css";
 
-const ADMIN_EMAIL = "dyllamaboumbaninolanedyl@gmail.com"; // ← mets ton email ici
+const ADMIN_EMAIL = "dyllamaboumbaninolanedyl@gmail.com"; // ← remplace par ton email
 
 function App() {
   const [user, setUser] = useState(null);
@@ -27,56 +19,74 @@ function App() {
 
   // Écoute connexion/déconnexion
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
       setLoading(false);
     });
-    return unsub;
-  }, []);
-
-  // Écoute le catalogue Firestore en temps réel
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "films"), (snapshot) => {
-      setFilms(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
     });
-    return unsub;
+    return () => subscription.unsubscribe();
   }, []);
 
-  // Panier dans localStorage par user
+  // Charge le catalogue
+  useEffect(() => {
+    const fetchFilms = async () => {
+      const { data } = await supabase.from("films").select("*");
+      setFilms(data || []);
+    };
+    fetchFilms();
+  }, []);
+
+  // Charge le panier de l'utilisateur
   useEffect(() => {
     if (user) {
-      const saved = localStorage.getItem(`panier_${user.uid}`);
-      setPanier(saved ? JSON.parse(saved) : []);
+      const fetchPanier = async () => {
+        const { data } = await supabase
+          .from("paniers")
+          .select("*")
+          .eq("user_id", user.id);
+        setPanier(data || []);
+      };
+      fetchPanier();
     }
   }, [user]);
 
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem(`panier_${user.uid}`, JSON.stringify(panier));
-    }
-  }, [panier, user]);
-
   const ajouterFilm = async (film) => {
-    await addDoc(collection(db, "films"), film);
+    const { data } = await supabase.from("films").insert([film]).select();
+    if (data) setFilms([...films, ...data]);
   };
 
   const supprimerFilm = async (id) => {
-    await deleteDoc(doc(db, "films", id));
-    setPanier(panier.filter((f) => f.id !== id));
+    await supabase.from("films").delete().eq("id", id);
+    await supabase.from("paniers").delete().eq("film_id", id);
+    setFilms(films.filter((f) => f.id !== id));
+    setPanier(panier.filter((f) => f.film_id !== id));
   };
 
-  const ajouterAuPanier = (film) => {
-    if (panier.find((f) => f.id === film.id)) return;
-    setPanier([...panier, film]);
+  const ajouterAuPanier = async (film) => {
+    if (panier.find((f) => f.film_id === film.id)) return;
+    const item = {
+      user_id: user.id,
+      film_id: film.id,
+      titre: film.titre,
+      image: film.image,
+      realisateur: film.realisateur,
+      note: film.note,
+      annee: film.annee,
+      synopsis: film.synopsis,
+    };
+    const { data } = await supabase.from("paniers").insert([item]).select();
+    if (data) setPanier([...panier, ...data]);
   };
 
-  const retirerDuPanier = (id) => {
-    setPanier(panier.filter((f) => f.id !== id));
+  const retirerDuPanier = async (film_id) => {
+    await supabase.from("paniers").delete().eq("film_id", film_id).eq("user_id", user.id);
+    setPanier(panier.filter((f) => f.film_id !== film_id));
   };
 
   const isAdmin = user && user.email === ADMIN_EMAIL;
 
-  // Détection page admin
   useEffect(() => {
     const checkHash = () => {
       if (window.location.hash === "#/admin") setPage("admin");
@@ -101,8 +111,8 @@ function App() {
         user={user}
         invite={invite}
         isAdmin={isAdmin}
-        onDeconnexion={() => {
-          signOut(auth);
+        onDeconnexion={async () => {
+          await supabase.auth.signOut();
           setInvite(false);
           setPanier([]);
         }}

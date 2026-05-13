@@ -1,9 +1,5 @@
 import { useState } from "react";
-import { auth } from "../firebase";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { supabase } from "../supabase";
 
 function Login({ onInvite }) {
   const [mode, setMode] = useState("connexion");
@@ -11,28 +7,29 @@ function Login({ onInvite }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [erreur, setErreur] = useState("");
+  const [succes, setSucces] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErreur("");
+    setSucces("");
 
     if (password.length < 8) {
       setErreur("Le mot de passe doit contenir au moins 8 caractères.");
       return;
     }
 
-    try {
-      if (mode === "inscription") {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
-    } catch (err) {
-      if (err.code === "auth/email-already-in-use") setErreur("Email déjà utilisé.");
-      else if (err.code === "auth/wrong-password") setErreur("Mot de passe incorrect.");
-      else if (err.code === "auth/user-not-found") setErreur("Aucun compte avec cet email.");
-      else if (err.code === "auth/invalid-credential") setErreur("Email ou mot de passe incorrect.");
-      else setErreur(err.code);
+    if (mode === "inscription") {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { prenom } }
+      });
+      if (error) setErreur(error.message);
+      else setSucces("Compte créé ! Tu peux te connecter.");
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) setErreur("Email ou mot de passe incorrect.");
     }
   };
 
@@ -82,6 +79,7 @@ function Login({ onInvite }) {
             required
           />
           {erreur && <p className="erreur">{erreur}</p>}
+          {succes && <p className="succes">{succes}</p>}
           <button type="submit" className="btn-login">
             {mode === "connexion" ? "Se connecter" : "Créer un compte"}
           </button>
