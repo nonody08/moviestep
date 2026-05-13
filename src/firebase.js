@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyBBWHK_JroPO-d_LsnmI86L84fbaxI7xhk",
   authDomain: "moviestep-5d58a.firebaseapp.com",
