@@ -1,7 +1,7 @@
 function Header({ page, setPage, panierCount, user, invite, isAdmin, onDeconnexion }) {
   return (
     <header className="header">
-      <h1 onClick={() => setPage("catalogue")}>🎬 CinéTracker</h1>
+      <h1 onClick={() => setPage("catalogue")}>🎬 MovieStep by nonody</h1>
       <nav>
         <button
           className={page === "catalogue" ? "active" : ""}
