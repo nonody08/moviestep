@@ -30,7 +30,8 @@ function App() {
 
   useEffect(() => {
     const fetchFilms = async () => {
-      const { data } = await supabase.from("Films").select("*");
+      const { data, error } = await supabase.from("Films").select("*");
+      console.log("films:", data, error);
       setFilms(data || []);
     };
     fetchFilms();
@@ -39,10 +40,11 @@ function App() {
   useEffect(() => {
     if (user) {
       const fetchPanier = async () => {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("Paniers")
           .select("*")
           .eq("user_id", user.id);
+        console.log("panier:", data, error);
         setPanier(data || []);
       };
       fetchPanier();
@@ -50,7 +52,8 @@ function App() {
   }, [user]);
 
   const ajouterFilm = async (film) => {
-    const { data } = await supabase.from("Films").insert([film]).select();
+    const { data, error } = await supabase.from("Films").insert([film]).select();
+    console.log("ajout film:", data, error);
     if (data) setFilms([...films, ...data]);
   };
 
@@ -78,7 +81,8 @@ function App() {
       annee: film.annee,
       synopsis: film.synopsis,
     };
-    const { data } = await supabase.from("Paniers").insert([item]).select();
+    const { data, error } = await supabase.from("Paniers").insert([item]).select();
+    console.log("ajout panier:", data, error);
     if (data) setPanier([...panier, ...data]);
   };
 
