@@ -35,6 +35,14 @@ function Admin({ films, onAjouter, onSupprimer }) {
           onChange={(e) => setTitre(e.target.value)}
         />
         <input
+  type="number"
+  placeholder="Année de sortie (ex: 2023)..."
+  value={annee}
+  onChange={(e) => setAnnee(e.target.value)}
+  min="1900"
+  max="2099"
+/>
+        <input
           type="text"
           placeholder="URL de l'affiche..."
           value={image}
@@ -53,14 +61,6 @@ function Admin({ films, onAjouter, onSupprimer }) {
       reader.readAsDataURL(file);
     }}
   />
-  <input
-  type="number"
-  placeholder="Année de sortie (ex: 2023)..."
-  value={annee}
-  onChange={(e) => setAnnee(e.target.value)}
-  min="1900"
-  max="2099"
-/>
 </label>
 {image && (
   <img src={image} alt="Aperçu" className="apercu-image" />
