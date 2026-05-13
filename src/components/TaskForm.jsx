@@ -18,7 +18,7 @@ function FilmForm({ onAdd }) {
     <form className="task-form" onSubmit={handleSubmit}>
       <input
         type="text"
-        placeholder="Entrez le film..."
+        placeholder="Mets le film..."
         value={titre}
         onChange={(e) => setTitre(e.target.value)}
       />
