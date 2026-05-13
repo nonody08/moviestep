@@ -20,13 +20,19 @@ function Login({ onInvite }) {
     }
 
     if (mode === "inscription") {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        setErreur(error.message);
+        return;
+      }
+      // Sauvegarde dans la table users
+      await supabase.from("users").insert([{
+        id: data.user.id,
+        prenom,
         email,
-        password,
-        options: { data: { prenom } }
-      });
-      if (error) setErreur(error.message);
-      else setSucces("Compte créé ! Tu peux te connecter.");
+        role: "user"
+      }]);
+      setSucces("Compte créé ! Tu peux te connecter.");
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setErreur("Email ou mot de passe incorrect.");

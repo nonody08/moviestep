@@ -713,3 +713,15 @@ body {
   font-size: 0.85rem;
   text-align: center;
 }
+.admin-panier {
+  background: #111;
+  border: 1px solid #e50914;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-panier h4 {
+  color: #e50914;
+  margin-bottom: 1rem;
+}
