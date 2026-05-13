@@ -21,6 +21,7 @@ function Panier({ panier, onRetirer }) {
               <div className="panier-info">
                 <h3>{film.titre}</h3>
                 <p>🎥 {film.realisateur}</p>
+                <p>📅 {film.annee}</p>
                 <p>{"⭐".repeat(Number(film.note))}</p>
               </div>
               <button className="btn-retirer" onClick={() => onRetirer(film.id)}>

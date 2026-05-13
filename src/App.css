@@ -517,3 +517,7 @@ body {
   border-radius: 10px;
   border: 2px solid #e50914;
 }
+.card-annee {
+  font-size: 0.8rem;
+  color: #aaa;
+}

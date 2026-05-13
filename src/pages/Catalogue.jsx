@@ -59,6 +59,7 @@ function Catalogue({ films, panier, onAjouterAuPanier }) {
               <div className="card-body">
                 <h3 className="card-titre">{film.titre}</h3>
                 <p className="card-realisateur">🎥 {film.realisateur}</p>
+                <p className="card-annee">📅 {film.annee}</p>
                 <p className="card-synopsis">{film.synopsis}</p>
                 <div className="card-footer">
                   <span className="card-note">{"⭐".repeat(Number(film.note))}</span>

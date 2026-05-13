@@ -3,6 +3,7 @@ import { useState } from "react";
 function Admin({ films, onAjouter, onSupprimer }) {
   const [titre, setTitre] = useState("");
   const [genre, setGenre] = useState("action");
+  const [annee, setAnnee] = useState("");
   const [note, setNote] = useState("5");
   const [image, setImage] = useState("");
   const [synopsis, setSynopsis] = useState("");
@@ -11,12 +12,13 @@ function Admin({ films, onAjouter, onSupprimer }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!titre.trim()) return;
-    onAjouter({ titre, genre, note, image, synopsis, realisateur });
+    onAjouter({ titre, genre, note, image, synopsis, realisateur, annee });
     setTitre("");
     setGenre("action");
     setNote("5");
     setImage("");
     setSynopsis("");
+    setAnnee("")
     setRealisateur("");
   };
 
@@ -51,6 +53,14 @@ function Admin({ films, onAjouter, onSupprimer }) {
       reader.readAsDataURL(file);
     }}
   />
+  <input
+  type="number"
+  placeholder="Année de sortie (ex: 2023)..."
+  value={annee}
+  onChange={(e) => setAnnee(e.target.value)}
+  min="1900"
+  max="2099"
+/>
 </label>
 {image && (
   <img src={image} alt="Aperçu" className="apercu-image" />
