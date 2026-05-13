@@ -36,18 +36,12 @@ function Admin({ films, onAjouter, onSupprimer }) {
         />
         <input
   type="number"
-  placeholder="Année de sortie (ex: 2023)..."
+  placeholder="Année de sortie.."
   value={annee}
   onChange={(e) => setAnnee(e.target.value)}
   min="1900"
   max="2099"
 />
-        <input
-          type="text"
-          placeholder="URL de l'affiche..."
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-        />
        <label className="input-file-label">
   📁 Choisir une affiche
   <input
