@@ -7,7 +7,7 @@ import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import "./App.css";
 
-const ADMIN_EMAIL = "ton-email@gmail.com"; // ← remplace par ton email
+const ADMIN_EMAIL = "dyllamaboumbaninolanedyl@gmail.com"; // ← remplace par ton email
 
 function App() {
   const [user, setUser] = useState(null);
