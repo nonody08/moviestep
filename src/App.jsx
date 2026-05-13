@@ -7,7 +7,7 @@ import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import "./App.css";
 
-const ADMIN_EMAIL = "dyllamaboumbaninolanedyl@gmail.com"; // ← remplace par ton email
+const ADMIN_EMAIL = "ton-email@gmail.com"; // ← remplace par ton email
 
 function App() {
   const [user, setUser] = useState(null);
@@ -17,7 +17,6 @@ function App() {
   const [films, setFilms] = useState([]);
   const [panier, setPanier] = useState([]);
 
-  // Écoute connexion/déconnexion
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -29,21 +28,19 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Charge le catalogue
   useEffect(() => {
     const fetchFilms = async () => {
-      const { data } = await supabase.from("films").select("*");
+      const { data } = await supabase.from("Films").select("*");
       setFilms(data || []);
     };
     fetchFilms();
   }, []);
 
-  // Charge le panier de l'utilisateur
   useEffect(() => {
     if (user) {
       const fetchPanier = async () => {
         const { data } = await supabase
-          .from("paniers")
+          .from("Paniers")
           .select("*")
           .eq("user_id", user.id);
         setPanier(data || []);
@@ -53,15 +50,20 @@ function App() {
   }, [user]);
 
   const ajouterFilm = async (film) => {
-    const { data } = await supabase.from("films").insert([film]).select();
+    const { data } = await supabase.from("Films").insert([film]).select();
     if (data) setFilms([...films, ...data]);
   };
 
   const supprimerFilm = async (id) => {
-    await supabase.from("films").delete().eq("id", id);
-    await supabase.from("paniers").delete().eq("film_id", id);
+    await supabase.from("Films").delete().eq("id", id);
+    await supabase.from("Paniers").delete().eq("film_id", id);
     setFilms(films.filter((f) => f.id !== id));
     setPanier(panier.filter((f) => f.film_id !== id));
+  };
+
+  const modifierFilm = async (id, newData) => {
+    await supabase.from("Films").update(newData).eq("id", id);
+    setFilms(films.map((f) => (f.id === id ? { ...f, ...newData } : f)));
   };
 
   const ajouterAuPanier = async (film) => {
@@ -76,12 +78,12 @@ function App() {
       annee: film.annee,
       synopsis: film.synopsis,
     };
-    const { data } = await supabase.from("paniers").insert([item]).select();
+    const { data } = await supabase.from("Paniers").insert([item]).select();
     if (data) setPanier([...panier, ...data]);
   };
 
   const retirerDuPanier = async (film_id) => {
-    await supabase.from("paniers").delete().eq("film_id", film_id).eq("user_id", user.id);
+    await supabase.from("Paniers").delete().eq("film_id", film_id).eq("user_id", user.id);
     setPanier(panier.filter((f) => f.film_id !== film_id));
   };
 
@@ -123,13 +125,19 @@ function App() {
           panier={panier}
           onAjouterAuPanier={ajouterAuPanier}
           invite={invite}
+          isAdmin={isAdmin}
         />
       )}
-      {page === "panier" && !invite && (
+      {page === "panier" && !invite && !isAdmin && (
         <Panier panier={panier} onRetirer={retirerDuPanier} />
       )}
       {page === "admin" && isAdmin && (
-        <Admin films={films} onAjouter={ajouterFilm} onSupprimer={supprimerFilm} />
+        <Admin
+          films={films}
+          onAjouter={ajouterFilm}
+          onSupprimer={supprimerFilm}
+          onModifier={modifierFilm}
+        />
       )}
     </div>
   );
